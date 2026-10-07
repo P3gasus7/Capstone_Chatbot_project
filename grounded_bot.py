@@ -11,9 +11,13 @@ Answers only come from the knowledge base in knowledge.py. If nothing
 relevant is retrieved, the model is never called and a fixed refusal
 string is returned directly from code.
 """
+import logging
+
 import groq
 
 from retriever import Retriever
+
+logger = logging.getLogger("moments_notice")
 
 MODEL = "openai/gpt-oss-20b"
 
@@ -124,14 +128,23 @@ def answer(question, retriever, client):
     try:
         text = _call_model(client, question, context)
     except groq.RateLimitError:
+        logger.warning("Groq rate limit hit")
         return MSG_RATE_LIMIT, [], False
     except (groq.APIConnectionError, groq.APITimeoutError):
+        logger.warning("Groq connection or timeout error")
         # APITimeoutError is a subclass of APIConnectionError in the SDK;
         # listing both keeps the intent obvious to the next reader.
         return MSG_CONNECTION, [], False
-    except (groq.AuthenticationError, groq.PermissionDeniedError):
+    except (groq.AuthenticationError, groq.PermissionDeniedError) as err:
+        # Log the type and HTTP status only. Never log the key or the
+        # full error text.
+        logger.warning(
+            "Groq rejected the request: %s (status %s)",
+            type(err).__name__, getattr(err, "status_code", "?"),
+        )
         return MSG_AUTH, [], False
-    except Exception:
+    except Exception as err:
+        logger.warning("Unexpected model error: %s", type(err).__name__)
         # Last resort so that no failure, including ones this code did
         # not anticipate, ever reaches the page as a traceback.
         return MSG_UNAVAILABLE, [], False

@@ -6,6 +6,8 @@ Streamlit interface only. All decisions about retrieval, refusal, and
 error messages live in grounded_bot.py; this file just draws the page
 and passes questions through.
 """
+import logging
+
 import streamlit as st
 
 from grounded_bot import MSG_AUTH, answer, make_client
@@ -34,9 +36,13 @@ def get_client():
     """
     try:
         return build_client(st.secrets["GROQ_API_KEY"])
-    except Exception:
+    except Exception as err:
         # Missing key or missing secrets file: the page still loads and
-        # the visitor sees a message instead of a traceback.
+        # the visitor sees a message instead of a traceback. The log
+        # line (type only, never the key) tells the owner which it was.
+        logging.getLogger("moments_notice").warning(
+            "Could not build Groq client: %s", type(err).__name__
+        )
         return None
 
 
