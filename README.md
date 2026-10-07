@@ -102,14 +102,15 @@ Every answer is shown with the source label(s) of the chunk(s) it was
 grounded in (e.g. "Booking Policy"), displayed as a caption under the
 response.
 
-This lets you tell apart two kinds of failure. If the bot refuses or
-answers wrongly **and no source is shown**, that's a **retrieval
-failure**: nothing relevant was found, so the short circuit fired before
-the model was called. If the bot gives a wrong or invented answer
-**while a source is shown**, that's a **prompt failure**: the retriever
-found something relevant, but the model didn't stay inside it. Without
-sources, both look identical to the visitor, and there'd be no way to
-tell whether to fix the retriever or the grounding prompt.
+Refusals never show a source, because a refusal has nothing to
+attribute. For answers, the caption lets you tell apart two kinds of
+failure. If the bot answers with a wrong or invented detail **and a
+source is shown**, the retriever found the right area but the model went
+beyond it, which is a **prompt failure**. If the bot gives a wrong answer
+from the **wrong chunk** (for example a deposit question citing the
+set-length chunk), that is a **retrieval failure**. Without the caption,
+both look the same to the visitor, and there'd be no way to tell whether
+to fix the retriever or the grounding prompt.
 
 ## Hallucination testing (five near-miss questions)
 

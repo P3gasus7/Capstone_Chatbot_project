@@ -76,13 +76,20 @@ def run():
     failed += not good
     print("[{}] no retrieval -> refusal, model not called".format("PASS" if good else "FAIL"))
 
+    # Model refuses even though retrieval found a related chunk:
+    # the refusal must come back with NO source caption.
+    text, sources, ok = bot.answer(GOOD_Q, retriever, FakeClient(result=bot.REFUSAL))
+    good = ok and text == bot.REFUSAL and sources == []
+    failed += not good
+    print("[{}] model refusal carries no sources".format("PASS" if good else "FAIL"))
+
     # Happy path: answer passes through with its sources.
     text, sources, ok = bot.answer(GOOD_Q, retriever, FakeClient(result="30 percent."))
     good = ok and text == "30 percent." and sources and sources[0] == "Booking Policy (deposit_policy)"
     failed += not good
     print("[{}] happy path returns text and top source".format("PASS" if good else "FAIL"))
 
-    total = len(CASES) + 2
+    total = len(CASES) + 3
     print("\n{}/{} passed".format(total - failed, total))
     assert failed == 0, "Some failure-path tests failed."
 

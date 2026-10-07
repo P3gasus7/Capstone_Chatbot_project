@@ -61,6 +61,7 @@ Rules:
 - If the reference text does not contain the answer, respond with exactly this sentence and nothing else: "{refusal}"
 - Do not use any knowledge from outside the reference text.
 - Do not guess at prices, dates, distances, percentages, or any other numbers that are not stated in the reference text.
+- Do not say what a number or percentage applies to (for example "of the total fee") unless the reference text says so.
 - Keep your answer under three sentences.
 
 <reference>
@@ -139,5 +140,12 @@ def answer(question, retriever, client):
     # failure rather than showing the visitor an empty chat bubble.
     if not text or not text.strip():
         return MSG_BLANK_ANSWER, [], False
+
+    # A refusal has nothing to attribute. The model may refuse even when
+    # retrieval found a loosely related chunk, so clear the sources here;
+    # otherwise the visitor sees a "Source:" line under "I do not have
+    # that information", which looks like the bot is citing its refusal.
+    if REFUSAL in text:
+        return REFUSAL, [], True
 
     return text.strip(), sources, True
