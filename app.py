@@ -2,15 +2,17 @@
 CSC-128 Capstone: Moments Notice booking assistant
 Shawn Canady
 
-Streamlit interface only. All decisions about retrieval, refusal, and
-error messages live in grounded_bot.py; this file just draws the page
-and passes questions through.
+Streamlit interface only. Routing, slot filling, and conversation state
+live in dialog.py; retrieval, refusal, and error messages live in
+grounded_bot.py. This file just draws the page and passes messages
+through.
 """
 import logging
 
 import streamlit as st
 
-from grounded_bot import MSG_AUTH, answer, make_client
+from dialog import DialogState, handle_turn
+from grounded_bot import make_client
 from retriever import Retriever
 
 
@@ -52,8 +54,13 @@ def render_message(message):
             st.warning(message["content"])
         else:
             st.write(message["content"])
+        parts = []
+        if message.get("intent") and not message.get("error"):
+            parts.append("Intent: " + message["intent"].replace("_", " "))
         if message.get("sources"):
-            st.caption("Source: " + "; ".join(message["sources"]))
+            parts.append("Source: " + "; ".join(message["sources"]))
+        if parts:
+            st.caption(" \u00b7 ".join(parts))
 
 
 st.title("Moments Notice — Booking Assistant")
@@ -73,6 +80,10 @@ st.caption(
 
 if "messages" not in st.session_state:
     st.session_state.messages = []
+if "dialog" not in st.session_state:
+    # What the bot remembers between turns: the slot-filling flow in
+    # progress, the slots filled so far, and the last topic.
+    st.session_state.dialog = DialogState()
 
 for message in st.session_state.messages:
     render_message(message)
@@ -83,14 +94,20 @@ if question:
     st.session_state.messages.append({"role": "user", "content": question})
     render_message(st.session_state.messages[-1])
 
-    client = get_client()
-    if client is None:
-        reply, sources, ok = MSG_AUTH, [], False
-    else:
-        with st.spinner("Looking that up..."):
-            reply, sources, ok = answer(question, get_retriever(), client)
+    # The client may be None (no API key). handle_turn still serves the
+    # deterministic intents, and only the faq path reports the problem.
+    with st.spinner("Looking that up..."):
+        reply = handle_turn(
+            question, st.session_state.dialog, get_retriever(), get_client()
+        )
 
     st.session_state.messages.append(
-        {"role": "assistant", "content": reply, "sources": sources, "error": not ok}
+        {
+            "role": "assistant",
+            "content": reply.text,
+            "sources": reply.sources,
+            "intent": reply.intent,
+            "error": not reply.ok,
+        }
     )
     render_message(st.session_state.messages[-1])

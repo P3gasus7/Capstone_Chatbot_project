@@ -99,7 +99,7 @@ def _call_model(client, question, context):
     return response.choices[0].message.content
 
 
-def answer(question, retriever, client):
+def answer(question, retriever, client, search_text=None):
     """
     Return (answer_text, sources, ok).
 
@@ -107,6 +107,10 @@ def answer(question, retriever, client):
     anything to attribute. ok is False only for system failures (rate
     limit, outage, bad key); a refusal is a correct answer, so ok stays
     True and the interface does not style it as an error.
+
+    search_text, when given, is what retrieval searches on; the model
+    still receives `question`. dialog.py uses this for follow-ups, where
+    the short message alone retrieves nothing.
     """
     question = (question or "").strip()
     if not question:
@@ -114,7 +118,7 @@ def answer(question, retriever, client):
     if len(question) > MAX_QUESTION_CHARS:
         return MSG_TOO_LONG, [], False
 
-    hits = retriever.search(question)
+    hits = retriever.search(search_text or question)
 
     # Short circuit: if retrieval found nothing, the model is never
     # called at all. The refusal comes straight from code, not from
