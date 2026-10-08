@@ -1,7 +1,8 @@
 # Moments Notice — Booking Assistant
 
 **Author:** Shawn Canady — CSC-128 Capstone
-**Live app:** moments-notice-band-booking.streamlit.app
+**Live app:** https://moments-notice-band-booking.streamlit.app/
+**Repository:** https://github.com/P3gasus7/Capstone_Chatbot_project
 
 ## What it does
 
