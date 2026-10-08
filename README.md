@@ -1,7 +1,7 @@
 # Moments Notice — Booking Assistant
 
 **Author:** Shawn Canady — CSC-128 Capstone
-**Live app:** TODO paste your public Streamlit URL here
+**Live app:** moments-notice-band-booking.streamlit.app
 
 ## What it does
 
@@ -159,17 +159,19 @@ model was called and any refusal has to come from the grounding prompt.
 |---|---|---|---|---|
 | 1 | Do you take requests for country songs? | event_types (0.118), genres_style (0.114) | I do not have that information about booking Moments Notice. Please reach out to the band directly for details. | Yes |
 | 2 | Can I pay the deposit with a credit card? | deposit_policy (0.210) | I do not have that information about booking Moments Notice. Please reach out to the band directly for details. | Yes |
-| 3 | Do you provide catering or a DJ in between sets? | set_length (0.106) | TODO paste the bot's reply here | TODO |
-| 4 | Is there a discount for booking multiple events? | advance_booking (0.140) | TODO paste the bot's reply here | TODO |
-| 5 | Can you learn a special song for our first dance? | event_types (0.118), genres_style (0.114) | TODO paste the bot's reply here | TODO |
+| 3 | Do you provide catering or a DJ in between sets? | set_length (0.106) | I do not have that information about booking Moments Notice. Please reach out to the band directly for details. | Yes |
+| 4 | Is there a discount for booking multiple events? | advance_booking (0.140) | I do not have that information about booking Moments Notice. Please reach out to the band directly for details.| Yes |
+| 5 | Can you learn a special song for our first dance? | event_types (0.118), genres_style (0.114) | I do not have that information about booking Moments Notice. Please reach out to the band directly for details.| Yes |
 
-**Result so far (rows 1 and 2):** both returned the exact fixed refusal
-sentence. Retrieval found a related chunk each time (the credit card
+**Result:** all five questions returned the exact fixed refusal sentence.
+Retrieval found a related chunk each time (for example, the credit card
 question pulled the deposit policy), so the model was called and the
 refusal came from the grounding prompt holding, not from the threshold
-or the chunk wording. Rows 3 to 5: TODO add the same judgment after
-pasting the real replies. The scores above were re-run after the chunk
+or the chunk wording. The scores above were re-run after the chunk
 wording changed, so they differ slightly from earlier runs.
+This covers five near-miss questions only. The deposit retest below shows
+the model can still add detail when a chunk is ambiguous, so passing
+these five does not guarantee it never goes beyond the retrieved text.
 
 ## Retest: the deposit question
 
