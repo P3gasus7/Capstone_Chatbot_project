@@ -112,10 +112,7 @@ Section 5 records how that was tested.
    cancellation chunk instead of the travel fee chunk.
    **Cause:** Retrieval. The wording shares few words with the travel
    chunk, and "party" and "cost" pull toward other chunks.
-   **Fix:** None yet in the chunks. It is recorded as a known limit. The
-   source caption under the answer shows the wrong chunk, so a visitor or
-   tester can see it is a retrieval miss rather than a model error. The
-   real fix is an embedding retriever (see Section 7).
+   **Fix:** None yet in the chunks. Two things were done: the source caption makes it diagnosable (a visitor sees the wrong chunk named, which   distinguishes a retrieval miss from a model error), and it is recorded as a known limit in `README.md`. The real fix is the embedding retriever in Section 7.
 
 Automated tests: `test_retriever.py` (10/10) covers retrieval and the
 threshold; `test_bot.py` (13/13) covers rate limit, connection error,

@@ -31,7 +31,7 @@ because they have nothing to attribute.
 |---|---|---|---|---|
 | 1 | Can you give me legal advice about my venue contract? | Hand-off: a fixed message sending contract questions to the band. Caption says Intent: handoff, no source. | That one is best answered by the band directly. Custom quotes, confirming a specific date, and contract questions all go through them, so please reach out to the band directly. | Yes |
 | 2 | (paste a block of text longer than 500 characters) | A warning box says the question is too long and asks for a shorter one. No traceback. | That question is a bit long for me. Please shorten it to a sentence or two and try again. | Yes |
-| 3 | What's the weather today? | Refuses from code, model not called. Caption says Intent: faq with no source. | I do not have that information about booking Moments Notice. Please reach out to the band directly for details. | You |
+| 3 | What's the weather today? | Refuses from code, model not called. Caption says Intent: faq with no source. | I do not have that information about booking Moments Notice. Please reach out to the band directly for details. | Yes |
 | 4 | What's the weather on my wedding day? | Refuses. The words "wedding" and "day" match some chunks, so the model is called and the grounding prompt must hold. No caption. | I do not have that information about booking Moments Notice. Please reach out to the band directly for details. | Yes |
 | 5 | Can you give me a custom quote for a 6 hour event? | Hand-off: the same fixed message sending custom quotes to the band. Caption says Intent: handoff. Never invents a price. | That one is best answered by the band directly. Custom quotes, confirming a specific date, and contract questions all go through them, so please reach out to the band directly.| Yes |
 | 6 | (run locally with a wrong key in secrets.toml) any question | Plain "not set up correctly" message in a warning box. No traceback. | not set up correctly | Yes |
@@ -50,7 +50,7 @@ same conversations are tested with a fixed date in `test_dialog.py`.
 |---|---|---|---|---|
 | 1 | How much would travel cost for my event? | Asks how many miles from Charlotte. Caption says Intent: travel quote, no source. | Moments Notice travels free within 25 miles of Charlotte, NC. At 50 miles you are 25 miles past that, so the travel fee is 25 miles x 2 (round trip) x =
 2permile=100. Please confirm the final amount with the band. | Yes |
-| 2 | 40 | Quote with the arithmetic: 15 miles x 2 (round trip) x $2 per mile = $60, and asks you to confirm with the band. Caption cites Booking Policy (travel_fee). | Intent: travel quote · Source: Booking Policy (travel_fee) | Yes |
+| 2 | 40 | Quote with the arithmetic: 15 miles x 2 (round trip) x 2 per mile = 60, and asks you to confirm with the band. Caption cites Booking Policy (travel_fee). | Intent: travel quote · Source: Booking Policy (travel_fee) | Yes |
 | 3 | I want to book you for my wedding | Remembers the event type, asks only for the date. Caption says Intent: booking check. | What date is your event? (For example: June 14, 2027 or 6/14/2027) | Yes |
 | 4 | How much is the deposit? | A side question in the middle of the flow: answers the deposit question (faq, deposit_policy), then adds "Back to your booking check" and repeats the date question. |The deposit is 30 percent.
 
