@@ -2,10 +2,6 @@
 
 **Author:** Shawn Canady — CSC-128 Capstone
 
-> Check the assignment page for the exact six section names and rename
-> the headings below to match. Everything marked TODO needs your own
-> facts; I left it blank rather than invent test results.
-
 ## 1. Purpose and audience
 
 The audience is prospective clients (couples, event planners, corporate
@@ -89,18 +85,37 @@ Section 5 records how that was tested.
 
 ## 5. Testing: three failures and what was done
 
-TODO Replace with three real failures from your own testing. Candidates
-that match your code's history, to keep only if they actually happened:
+1. **Failure:** Casual phrasing retrieved the wrong chunk. Questions such
+   as "yo how much down payment to lock in the band" and "how long you
+   playin" did not reach the deposit and set-length chunks in early
+   `test_phrasing.py` runs.
+   **Cause:** Retrieval. TF-IDF matches words, and the chunks only used
+   formal vocabulary such as "deposit" and "performance length".
+   **Fix:** I added everyday synonyms ("down payment", "out of town") to
+   the chunks. `test_phrasing.py` now requires formal, casual, and dialect
+   phrasings of the same question to reach the same chunk.
 
-1. **Failure:** TODO what you asked and what went wrong.
-   **Cause:** retrieval, chunk wording, or prompt (source captions tell you which).
-   **Fix:** TODO the change and the retest result.
-2. **Failure:** TODO
-   **Cause:** TODO
-   **Fix:** TODO
-3. **Failure:** TODO
-   **Cause:** TODO
-   **Fix:** TODO
+2. **Failure:** "How much is the deposit?" returned "The deposit is 30
+   percent of the total booking fee." The reference text says a 30 percent
+   deposit is required but never says what it is a percent of.
+   **Cause:** The prompt, working on an ambiguous chunk. The source caption
+   named the right chunk (deposit_policy), so retrieval was correct and
+   the model added a detail.
+   **Fix:** I added a prompt rule against saying what a number applies to.
+   The retest dropped "total" but still returned "30 percent of the
+   booking fee", so the prompt alone did not hold. A prompt cannot
+   reliably stop a model from filling an obvious gap. The remaining fix is
+   in the data: state in `knowledge.py` what the 30 percent is calculated
+   on, then retest. This is the one failure still open.
+
+3. **Failure:** "What if my party is out of town, extra cost?" reaches the
+   cancellation chunk instead of the travel fee chunk.
+   **Cause:** Retrieval. The wording shares few words with the travel
+   chunk, and "party" and "cost" pull toward other chunks.
+   **Fix:** None yet in the chunks. It is recorded as a known limit. The
+   source caption under the answer shows the wrong chunk, so a visitor or
+   tester can see it is a retrieval miss rather than a model error. The
+   real fix is an embedding retriever (see Section 7).
 
 Automated tests: `test_retriever.py` (10/10) covers retrieval and the
 threshold; `test_bot.py` (13/13) covers rate limit, connection error,
@@ -150,5 +165,10 @@ same chunk. Scripted transcripts are in `TRANSCRIPT_TESTS.md`.
   final amount with the band.
 - Knowledge is static; changing prices means editing `knowledge.py` and
   redeploying.
-- TODO state the one thing you would change, and say it in your demo too.
+- **The one thing I would change:** replace the word-based TF-IDF
+  retriever with an embedding (semantic) retriever. Two of my three
+  testing failures, the casual phrasing and the "out of town, extra cost"
+  question, came from word matching, and the synonyms I added are a patch
+  that only covers phrasings I thought of. I would keep the threshold and
+  the code-level refusal, and re-pick the threshold from printed scores.
 
